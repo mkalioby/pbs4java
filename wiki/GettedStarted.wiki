@@ -1,7 +1,7 @@
-#summary One-sentence summary of this page.
 #labels Featured,Phase-Deploy
 How to get started with the API
-= Introduction =
+
+=Introduction=
 This page shows you how to use the API
 
 ==How to queue a job:==  
@@ -19,4 +19,16 @@ j.queue();
 {{{
 pbsTorque.Job j = pbsTorque.Job.getJobById("JOB_ID");
 system.out.println(j.getStatus);
+}}}
+
+==Search for a job by name==
+
+API allows you to search for job id for a job specifying a certain crateria.
+{{{
+String[] foundJobs = pbsTorque.Job.SearchJobsByName("test",false);
+for (int i=0; i<foundJobs.Length;i++)
+{
+pbsTorque.Job j = pbsTorque.Job.getJobById(foundJobs[i]);
+system.out.println(j.getStatus);
+}
 }}}
