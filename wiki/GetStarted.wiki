@@ -5,9 +5,9 @@ How to get started with the API
 This page shows you how to use the API
 
 ==How to queue a job:==  
-- Add the jar to your classpath.
-- create your solution as a shell file.
-- Create instance of the job class 
+* Add the jar to your classpath.
+* create your solution as a shell file.
+* Create instance of the job class 
 
 {{{
 pbsTorque.Job j = new pbsTorque.Job("test1","path/to/shellfile");
