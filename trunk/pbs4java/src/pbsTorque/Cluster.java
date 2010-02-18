@@ -39,8 +39,10 @@ public class Cluster {
         BufferedInputStream out = new BufferedInputStream(p.getInputStream());
         byte[] data = new byte[out.available()];
         out.read(data,0,out.available());
+        p.getErrorStream().close();
+        p.getOutputStream().close();
         String Result = new String(data);
-
+        out.close();
         String[] Nodes = Result.split("\n");
         String[] line;
         String header,value;
