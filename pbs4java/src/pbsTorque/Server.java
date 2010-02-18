@@ -35,6 +35,9 @@ public class Server {
                BufferedInputStream ef = new BufferedInputStream(p.getInputStream());
                byte[] data = new byte[ef.available()];
                ef.read(data, 0, ef.available());
+               ef.close();
+               p.getOutputStream().close();
+                p.getErrorStream().close();
                String Result = new String(data);
                String[] Jobs  = Result.split("\n");
                String JobName;
@@ -71,6 +74,9 @@ public class Server {
                BufferedInputStream ef = new BufferedInputStream(p.getInputStream());
                byte[] data = new byte[ef.available()];
                ef.read(data, 0, ef.available());
+               ef.close();
+               p.getOutputStream().close();
+                p.getErrorStream().close();
                String Result = new String(data);
                String[] Jobs  = Result.split("\n");
                String JobName;
@@ -109,10 +115,12 @@ public class Server {
         int NameIndex, UserIndex,TimeIndex,StatusIndex,QueueIndex;
         Process p = Runtime.getRuntime().exec("qstat");
                 p.waitFor();
-
+p.getOutputStream().close();
+                p.getErrorStream().close();
                BufferedInputStream ef = new BufferedInputStream(p.getInputStream());
                byte[] data = new byte[ef.available()];
                ef.read(data, 0, ef.available());
+               ef.close();
                String Result = new String(data);
                String[] Jobs  = Result.split("\n");
                String JobName;
@@ -152,12 +160,14 @@ public class Server {
     {
             Process p = Runtime.getRuntime().exec("qdel " + JobID);
                 p.waitFor();
-
+p.getOutputStream().close();
+                p.getErrorStream().close();
                 BufferedInputStream errStream = new BufferedInputStream(p.getErrorStream());
                if (errStream.available()>0)
                {
                byte[] errdata = new byte[errStream.available()];
                errStream.read(errdata, 0, errStream.available());
+               errStream.close();
                //String st = new String(errdata);
                throw new Exception(new String(errdata));
 

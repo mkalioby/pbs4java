@@ -34,6 +34,8 @@ public class Job {
     private String ctime="N/A";
     private String qtime="N/A";
     private String mtime="N/A";
+    private String stime="N/A";
+    private String comp_time="N/A";
 
     private String owner="N/A";
     private String executableFile="N/A";
@@ -116,7 +118,7 @@ public class Job {
             excuter.append(" " + getExecutableFile());
             String st = excuter.toString();
             //TODO: Remove this in case of Release;
-            System.out.println("Command: "+ st);
+           // System.out.println("Command: "+ st);
 
             Process p = Runtime.getRuntime().exec(st);
                 p.waitFor();
@@ -127,6 +129,9 @@ public class Job {
                byte[] errdata = new byte[ef.available()];
                ef.read(errdata, 0, ef.available());
                st = new String(errdata);
+               ef.close();
+               p.getOutputStream().close();
+               p.getInputStream().close();
                throw new Exception(st);
 
                }
@@ -136,6 +141,10 @@ public class Job {
             BufferedInputStream b = new BufferedInputStream(p.getInputStream());
                 byte[] data = new byte[b.available()];
                 b.read(data);
+                p.getOutputStream().close();
+                p.getErrorStream().close();
+
+                b.close();
                 return new String(data).replaceAll("\n", "");
 
             }
@@ -170,6 +179,9 @@ private void analyzeVariableList(String Variables) {
                BufferedInputStream ef = new BufferedInputStream(p.getInputStream());
                byte[] data = new byte[ef.available()];
                ef.read(data, 0, ef.available());
+               ef.close();
+               p.getOutputStream().close();
+               p.getErrorStream().close();
                String Result = new String(data);
                String[] Jobs  = Result.split("\n");
                String JobName;
@@ -213,23 +225,7 @@ private void analyzeVariableList(String Variables) {
      */
     public static Job getJobById(String id) throws IOException,InterruptedException,Exception
     {
-        Process p = Runtime.getRuntime().exec("qstat -f " + id);
-                p.waitFor();
-
-                BufferedInputStream errStream = new BufferedInputStream(p.getErrorStream());
-               if (errStream.available()>0)
-               {
-               byte[] errdata = new byte[errStream.available()];
-               errStream.read(errdata, 0, errStream.available());
-               //String st = new String(errdata);
-               throw new Exception(new String(errdata));
-
-               }
-               BufferedInputStream ef = new BufferedInputStream(p.getInputStream());
-               byte[] data = new byte[ef.available()];
-               ef.read(data, 0, ef.available());
-               String Result = new String(data);
-               String[] Info  = Result.split("\n");
+       String[] Info  = getJobInfo(id);
 
                Job j = new Job();
                String header = "";
@@ -245,7 +241,9 @@ private void analyzeVariableList(String Variables) {
                    {
                        line=Info[i].split(":",2);
                    }
-                    header = line[0].trim();
+                if (line.length>=2)
+                {
+                   header = line[0].trim();
   //                  System.out.println("Header = " + header);
                     value = line[1].trim();
 //                    System.out.println("value = " + value);
@@ -292,7 +290,10 @@ private void analyzeVariableList(String Variables) {
 
                     else if("mtime".equals(header))
                        j.setMtime(value);
-
+                    else if ("start_time".equals(header))
+                        j.setStime(value);
+                    else if ("comp_time".equals(header))
+                            j.setComp_time(value);
                    else if("exec_host".equals(header))
                        j.setExecuteNode(value);
 
@@ -321,10 +322,15 @@ private void analyzeVariableList(String Variables) {
                    }
                     else if("submit_args".equals(header))
                    {
-                         while (Info[i+1].startsWith("\t"))
+                        while (i+1<Info.length)
+                        {
+                         if (Info[i+1].startsWith("\t"))
                         {
                             value += Info[i+1];
                             i++;
+                        }
+                         else
+                             break;
                         }
                          value=value.replaceAll("\t", "");
                          j.setSubmitArgs (value);
@@ -333,9 +339,69 @@ private void analyzeVariableList(String Variables) {
 
 
                }
+               }
                return j;
 
     }
+    
+    private static String[] getJobInfo(String JobID) throws Exception
+    {
+        Process p = Runtime.getRuntime().exec("qstat -f " + JobID);
+                p.waitFor();
+
+                BufferedInputStream errStream = new BufferedInputStream(p.getErrorStream());
+               if (errStream.available()>0)
+               {
+               byte[] errdata = new byte[errStream.available()];
+               errStream.read(errdata, 0, errStream.available());
+               p.getOutputStream().close();
+                p.getErrorStream().close();
+               errStream.close();
+               //String st = new String(errdata);
+               throw new Exception(new String(errdata));
+
+               }
+               BufferedInputStream ef = new BufferedInputStream(p.getInputStream());
+               byte[] data = new byte[ef.available()];
+               ef.read(data, 0, ef.available());
+               ef.close();
+               p.getOutputStream().close();
+                p.getErrorStream().close();
+               String Result = new String(data);
+               return Result.split("\n");
+    }
+
+ public static String getJobStatus(String JobID) throws Exception
+ {
+
+            String[] Info =  getJobInfo(JobID);
+               
+               String header = "";
+               String value="";
+               String[] line;
+               for (int i=0; i<Info.length; i++)
+               {
+                   if (Info[i].contains("="))
+                   {
+                    line=Info[i].split("=",2);
+                   }
+                   else
+                   {
+                       line=Info[i].split(":",2);
+                   }
+                    header = line[0].trim();
+  //                  System.out.println("Header = " + header);
+                    value = line[1].trim();
+//                    System.out.println("value = " + value);
+
+                    
+                    if("job_state".equals(header))
+                       return value;
+                 }
+               return null;
+
+    
+ }
 /**
  *
  * @return String Representation of a Job
@@ -725,6 +791,34 @@ public String Duration()
 
     public void setSubmitArgs(String SubmitArgs) {
         this.SubmitArgs = SubmitArgs;
+    }
+
+    /**
+     * @return the stime
+     */
+    public String getStime() {
+        return stime;
+    }
+
+    /**
+     * @param stime the stime to set
+     */
+    public void setStime(String stime) {
+        this.stime = stime;
+    }
+
+    /**
+     * @return the comp_time
+     */
+    public String getComp_time() {
+        return comp_time;
+    }
+
+    /**
+     * @param comp_time the comp_time to set
+     */
+    public void setComp_time(String comp_time) {
+        this.comp_time = comp_time;
     }
 
 
