@@ -80,14 +80,14 @@ public class Job {
             
             //<editor-fold desc="Nodes and Processors/Node">
 
-            if (getNodes()!=null && getPpn() !=null)
-                excuter.append("-l nodes=" +getNodes()  + ":ppn=" + getPpn());
+            if (!"N/A".equals(getNodes()) && !"N/A".equals(getPpn()))
+                excuter.append("-l nodes=" +getNodes()  + ":ppn=" + getPpn() +" ");
             else if (getPpn()==null && getNodes()!=null)
                  excuter.append("-l nodes=" +getNodes());
 //</editor-fold>
 
             //<editor-fold desc="AfterOK">
-                 if (getAfterOK()!=null)
+                 if (!"N/A".equals(getAfterOK()))
                      {
                      StringBuilder strOk= new StringBuilder(" -W depend=afterok");
                      for (int i=0;i<getAfterOK().size(); i++)
@@ -99,7 +99,7 @@ public class Job {
             //</editor-fold>
             
             //<editor-fold desc="AfterAny">
-            if (getAfterany()!=null)
+            if (!"N/A".equals(getAfterany()))
                  {
                      StringBuilder strAny= new StringBuilder("-W depend=afterany");
                      for (int i=0;i<getAfterany().size(); i++)
@@ -111,7 +111,7 @@ public class Job {
             //</editor-fold>
 
             //<editor-fold desc="queue">
-                if (getQueue()!= null)
+                if (!"N/A".equals(getQueue()))
                     excuter.append("-q " + getQueue() );
             //</editor-fold>
 
@@ -121,6 +121,7 @@ public class Job {
            // System.out.println("Command: "+ st);
 
             Process p = Runtime.getRuntime().exec(st);
+
                 p.waitFor();
 
                BufferedInputStream ef = new BufferedInputStream(p.getErrorStream());
