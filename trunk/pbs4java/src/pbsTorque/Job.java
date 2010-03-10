@@ -27,9 +27,9 @@ public class Job {
     private String Name="N/A";
     private String nodes="N/A";
     private String ppn="N/A";
-    private ArrayList<String> afterany;
-    private ArrayList<String> afterOK;
-    private HashMap<String,String> variables;
+    private ArrayList<String> afterany=new ArrayList<String>();
+    private ArrayList<String> afterOK=new ArrayList<String>();
+    private HashMap<String,String> variables=new HashMap<String, String>();
     private String SubmitArgs="N/A";
     private String ctime="N/A";
     private String qtime="N/A";
@@ -87,7 +87,7 @@ public class Job {
 //</editor-fold>
 
             //<editor-fold desc="AfterOK">
-                 if (!"N/A".equals(getAfterOK()))
+                 if (afterOK.size()>0)
                      {
                      StringBuilder strOk= new StringBuilder(" -W depend=afterok");
                      for (int i=0;i<getAfterOK().size(); i++)
@@ -99,7 +99,7 @@ public class Job {
             //</editor-fold>
             
             //<editor-fold desc="AfterAny">
-            if (!"N/A".equals(getAfterany()))
+            if (afterany.size()>0)
                  {
                      StringBuilder strAny= new StringBuilder("-W depend=afterany");
                      for (int i=0;i<getAfterany().size(); i++)
