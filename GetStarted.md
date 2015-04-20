@@ -1,0 +1,33 @@
+How to get started with the API
+
+# Introduction #
+This page shows you how to use the API
+
+## How to queue a job: ##
+  * Add the jar to your classpath.
+  * create your solution as a shell file.
+  * Create instance of the job class
+
+```
+pbsTorque.Job j = new pbsTorque.Job("test1","path/to/shellfile");
+j.queue();
+```
+
+## Get the Job Information ##
+
+```
+pbsTorque.Job j = pbsTorque.Job.getJobById("JOB_ID");
+system.out.println(j.getStatus);
+```
+
+## Search for a job by name ##
+
+API allows you to search for job id for a job specifying a certain crateria.
+```
+String[] foundJobs = pbsTorque.Job.SearchJobsByName("test",false);
+for (int i=0; i<foundJobs.Length;i++)
+{
+pbsTorque.Job j = pbsTorque.Job.getJobById(foundJobs[i]);
+system.out.println(j.getStatus);
+}
+```
